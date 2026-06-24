@@ -81,8 +81,7 @@ public class CosignWrapper {
                 publicKeyPath.toString(),
                 "--type",
                 "slsaprovenance1",
-                imageNameTag
-        );
+                imageNameTag);
 
         ProcessBuilder pb = new ProcessBuilder(commands);
         Process p = pb.start();

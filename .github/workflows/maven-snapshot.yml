@@ -1,0 +1,18 @@
+name: Build snapshot version and upload to Maven Central
+
+permissions: {}
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+    call-snapshot-job:
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-snapshot.yml@f7c94a31f30422548ca8b96a7dd6b89b95039784 # v0.0.19
+      with:
+        project_name: 'project-ncl/attester'
+      secrets:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        QUAY_DEVEL_USERNAME: ${{ secrets.QUAY_DEVEL_USERNAME }}
+        QUAY_DEVEL_PASSWORD: ${{ secrets.QUAY_DEVEL_PASSWORD }}
