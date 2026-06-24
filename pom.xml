@@ -91,11 +91,6 @@
       <version>1.18.46</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>io.quarkiverse.oras</groupId>
-      <artifactId>quarkus-oras</artifactId>
-      <version>0.5.0</version>
-    </dependency>
   </dependencies>
 
   <build>
