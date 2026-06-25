@@ -101,7 +101,7 @@ public class OrchClient {
         Attachment attachment = Attachment.builder()
                 .name("provenance-attachment")
                 .description("Provenance Attachment")
-                .url("https://" + url)
+                .url(url)
                 .sha256(sha256)
                 .type(AttachmentType.PROVENANCE)
                 .build(build)
