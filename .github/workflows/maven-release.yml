@@ -16,6 +16,7 @@ jobs:
       uses: project-ncl/shared-github-actions/.github/workflows/maven-release.yml@f7c94a31f30422548ca8b96a7dd6b89b95039784 # v0.0.19
       with:
         ref_to_release: ${{ inputs.ref_to_release }}
+        quarkus_jib_image: true
       secrets:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
