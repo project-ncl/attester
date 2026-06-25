@@ -1,4 +1,15 @@
 # attester
+## TODO
+- MDC
+- Metrics
+- tracing
+- Container image
+- Version endpoint
+- Authentication
+- report back data to orchestrator
+- JSON logging output
+- kafka logging
+- write a proper README
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
