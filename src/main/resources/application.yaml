@@ -1,0 +1,16 @@
+quarkus:
+  index-dependency:
+    # needed for rest-client-jakarta
+    pnc:
+      group-id: org.jboss.pnc
+
+attester:
+  cosign:
+    privateKeyPath: /home/dcheung/slsa/cosign.key
+    publicKeyPath: /home/dcheung/slsa/cosign.pub
+    privateKeyPassword: dustin
+  orchUrl: https://localhost
+  container-registry:
+    username: user
+    password: password
+    image: quay.io/dcheung/pnc-test
