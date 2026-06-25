@@ -32,4 +32,7 @@ public class AttesterConfig {
 
     @ConfigProperty(name = "attester.cosign.publicKeyPath")
     Path cosignPublicKeyPath;
+
+    @ConfigProperty(name = "attester.addBuildAttribute", defaultValue = "true")
+    boolean addBuildAttribute;
 }

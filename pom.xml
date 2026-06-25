@@ -89,8 +89,26 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-container-image-docker</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>quarkus-pnc-client-auth</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-oidc-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-oidc</artifactId>
     </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
@@ -250,6 +268,7 @@
       </properties>
     </profile>
     <profile>
+      <id>default</id>
       <build>
         <plugins>
           <plugin>
