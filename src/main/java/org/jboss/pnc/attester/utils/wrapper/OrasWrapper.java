@@ -5,15 +5,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.jboss.pnc.attester.utils.configuration.AttesterConfig;
+
+@ApplicationScoped
 public class OrasWrapper {
 
-    private final String username;
-    private final String password; // can be "" if key is unencrypted
-
-    public OrasWrapper(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
+    @Inject
+    AttesterConfig config;
 
     /**
      * Create a container image tag
@@ -27,9 +28,9 @@ public class OrasWrapper {
                 path.toString(),
                 "--disable-path-validation",
                 "--username",
-                username,
+                config.getContainerRegistryUsername(),
                 "--password",
-                password);
+                config.getContainerRegistryPassword());
         System.out.println(commands);
 
         ProcessBuilder pb = new ProcessBuilder(commands);
