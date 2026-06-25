@@ -18,8 +18,10 @@ public class OrasWrapper {
 
     /**
      * Create a container image tag
+     *
+     * @return the SHA256 digest hash (without the "sha256:" prefix)
      */
-    public void createContainerImage(String imageNameTag, Path path) throws IOException, InterruptedException {
+    public String createContainerImage(String imageNameTag, Path path) throws IOException, InterruptedException {
 
         List<String> commands = List.of(
                 "oras",
@@ -31,7 +33,6 @@ public class OrasWrapper {
                 config.getContainerRegistryUsername(),
                 "--password",
                 config.getContainerRegistryPassword());
-        System.out.println(commands);
 
         ProcessBuilder pb = new ProcessBuilder(commands);
 
@@ -50,5 +51,22 @@ public class OrasWrapper {
             String err = Files.readString(errGobbler.capturedFile);
             throw new RuntimeException("oras failed: " + err);
         }
+
+        String output = Files.readString(outGobbler.capturedFile);
+
+        // Extract SHA256 digest from output
+        String digest = null;
+        for (String line : output.split("\n")) {
+            if (line.startsWith("Digest: sha256:")) {
+                digest = line.substring("Digest: sha256:".length()).trim();
+                break;
+            }
+        }
+
+        if (digest == null) {
+            throw new RuntimeException("Failed to extract digest from oras output");
+        }
+
+        return digest;
     }
 }

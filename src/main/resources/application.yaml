@@ -4,6 +4,16 @@ quarkus:
     pnc:
       group-id: org.jboss.pnc
 
+  oidc:
+    client-id: client
+
+  oidc-client:
+    auth-server-url: https://keycloak/auth
+    client-id: quarkus_app
+    credentials:
+      secret: secret
+    refresh-token-time-skew: 2M
+
 attester:
   cosign:
     privateKeyPath: /home/dcheung/slsa/cosign.key
@@ -14,3 +24,9 @@ attester:
     username: user
     password: password
     image: quay.io/dcheung/pnc-test
+  addBuildAttribute: true
+
+pnc_client_auth:
+    type: OIDC # or LDAP
+    ldap_credentials:
+        path: /mnt/secrets/ldap_credentials # file must be in format: <username>:<password>
