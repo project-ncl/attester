@@ -6,7 +6,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
-import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -20,6 +19,7 @@ import org.jboss.pnc.attester.utils.wrapper.OrasWrapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.quarkus.security.Authenticated;
 import lombok.extern.slf4j.Slf4j;
 
 @Path("/")

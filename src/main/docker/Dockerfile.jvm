@@ -83,7 +83,17 @@
 FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.24
 
 ENV LANGUAGE='en_US:en'
+ENV COSIGN_VERSION=v3.1.1
+ENV ORAS_VERSION=v1.3.0
 
+USER root
+RUN microdnf install gzip -y && microdnf clean all
+RUN curl -fsSL "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64" \
+      -o /usr/bin/cosign \
+    && chmod +x /usr/bin/cosign
+
+RUN curl -fsSL "https://github.com/oras-project/oras/releases/download/${ORAS_VERSION}/oras_${ORAS_VERSION#v}_linux_amd64.tar.gz" \
+    | tar -xz -C /usr/bin oras --no-same-owner
 
 # We make four distinct layers so if there are application changes the library layers can be re-used
 COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
