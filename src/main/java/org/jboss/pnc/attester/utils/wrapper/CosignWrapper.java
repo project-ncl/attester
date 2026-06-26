@@ -37,6 +37,7 @@ public class CosignWrapper {
         List<String> commands = List.of(
                 "cosign",
                 "attest",
+                "--tlog-upload=false",
                 "--registry-username",
                 config.getContainerRegistryUsername(),
                 "--registry-password",
@@ -81,6 +82,7 @@ public class CosignWrapper {
         List<String> commands = List.of(
                 "cosign",
                 "verify-attestation",
+                "--insecure-ignore-tlog=true",
                 "--key",
                 config.getCosignPublicKeyPath().toString(),
                 "--type",
