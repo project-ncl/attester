@@ -1,6 +1,5 @@
 # attester
 ## TODO
-- MDC
 - write a proper README
 - add retries
 
