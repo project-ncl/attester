@@ -4,6 +4,7 @@
 - Metrics
 - tracing
 - write a proper README
+- add retries
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
