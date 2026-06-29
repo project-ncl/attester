@@ -1,8 +1,6 @@
 # attester
 ## TODO
 - MDC
-- Metrics
-- tracing
 - write a proper README
 - add retries
 
