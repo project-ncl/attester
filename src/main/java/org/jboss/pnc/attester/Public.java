@@ -5,12 +5,16 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.time.ZonedDateTime;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.api.dto.ComponentVersion;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Predicate;
 import org.jboss.pnc.attester.utils.client.OrchClient;
 import org.jboss.pnc.attester.utils.configuration.AttesterConfig;
@@ -25,6 +29,9 @@ import lombok.extern.slf4j.Slf4j;
 @Path("/")
 @Slf4j
 public class Public {
+
+    @ConfigProperty(name = "quarkus.application.name")
+    String name;
 
     @Inject
     OrchClient orchClient;
@@ -82,5 +89,16 @@ public class Public {
         log.info("Done for build: {}", buildId);
 
         return predicate;
+    }
+
+    @GET
+    @Path("/version")
+    public ComponentVersion getVersion() {
+        return ComponentVersion.builder()
+                .name(name)
+                .version(Constants.ATTESTER_VERSION)
+                .commit(Constants.COMMIT_HASH)
+                .builtOn(ZonedDateTime.parse(Constants.BUILD_TIME))
+                .build();
     }
 }
