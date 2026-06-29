@@ -43,3 +43,6 @@ nb-configuration.xml
 /.quarkus/cli/plugins/
 # TLS Certificates
 .certs/
+
+# Generated constants
+src/main/java/org/jboss/pnc/attester/Constants.java

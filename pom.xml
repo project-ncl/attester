@@ -130,6 +130,12 @@
       <artifactId>rest-client-jakarta</artifactId>
       <version>3.5.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-api</artifactId>
+      <version>3.5.1</version>
+      <classifier>jakarta</classifier>
+    </dependency>
   </dependencies>
 
   <build>
@@ -225,6 +231,53 @@
               <goal>integration-test</goal>
               <goal>verify</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>4.9.10</version>
+        <configuration>
+          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+          <verbose>true</verbose>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <version>1.4.1</version>
+        <configuration>
+          <file>src/main/templates/org/jboss/pnc/attester/Constants.java</file>
+          <outputFile>src/main/java/org/jboss/pnc/attester/Constants.java</outputFile>
+          <replacements>
+            <replacement>
+              <token>@version@</token>
+              <value>${project.version}</value>
+            </replacement>
+            <replacement>
+              <token>@commit-id@</token>
+              <value>${git.commit.id.abbrev}</value>
+            </replacement>
+            <replacement>
+              <token>@build-time@</token>
+              <value>${maven.build.timestamp}</value>
+            </replacement>
+          </replacements>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+            <phase>process-sources</phase>
           </execution>
         </executions>
       </plugin>

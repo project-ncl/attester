@@ -1,14 +1,10 @@
 # attester
 ## TODO
-- report back data to orchestrator
-- Container image
-- Authentication
-
 - MDC
 - Metrics
 - tracing
-- Version endpoint
 - write a proper README
+- add retries
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
