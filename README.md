@@ -1,7 +1,5 @@
 # attester
 ## TODO
-- Version endpoint
-
 - MDC
 - Metrics
 - tracing
