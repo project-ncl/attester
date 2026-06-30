@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Predicate;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
@@ -65,6 +66,7 @@ public class OrchClient {
         attachmentClient = new AttachmentClient(configurationAuth);
     }
 
+    @Retry(maxRetries = 3, delay = 1000, jitter = 500)
     public Predicate getProvenancePredicate(String buildId) throws RemoteResourceException {
 
         String artifactId = getAnyArtifactIdForBuild(buildId);
@@ -79,6 +81,7 @@ public class OrchClient {
         return provenance.getPredicate();
     }
 
+    @Retry(maxRetries = 3, delay = 1000, jitter = 500)
     public String getAnyArtifactIdForBuild(String buildId) throws RemoteResourceException {
         Collection<Artifact> artifacts = buildClient.getBuiltArtifacts(buildId).getAll();
 
