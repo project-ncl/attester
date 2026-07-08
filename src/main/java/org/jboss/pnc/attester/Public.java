@@ -20,6 +20,7 @@ import org.jboss.pnc.attester.utils.client.OrchClient;
 import org.jboss.pnc.attester.utils.configuration.AttesterConfig;
 import org.jboss.pnc.attester.utils.wrapper.CosignWrapper;
 import org.jboss.pnc.attester.utils.wrapper.OrasWrapper;
+import org.jboss.pnc.common.log.LogSanitizer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -54,17 +55,23 @@ public class Public {
     @Authenticated
     public Predicate attest(String buildId) throws Exception {
 
-        log.info("Fetching predicate for build: {}", buildId);
+        var sanitizedBuildId = LogSanitizer.clean(buildId);
 
-        Predicate predicate = orchClient.getProvenancePredicate(buildId);
+        log.info("Fetching predicate for build: {}", sanitizedBuildId);
+
+        Predicate predicate = orchClient.getProvenancePredicate(sanitizedBuildId);
 
         String image = config.getContainerImage();
-        String imageTag = image + ":build-" + buildId;
+        String imageTag = image + ":build-" + sanitizedBuildId;
 
-        File tempFile = File.createTempFile("pnc-build-", buildId);
-        Files.writeString(tempFile.toPath(), buildId, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        File tempFile = File.createTempFile("pnc-build-", sanitizedBuildId);
+        Files.writeString(
+                tempFile.toPath(),
+                sanitizedBuildId,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
 
-        log.info("Creating image {} for build: {}", imageTag, buildId);
+        log.info("Creating image {} for build: {}", imageTag, sanitizedBuildId);
         String sha256 = orasWrapper.createContainerImage(imageTag, tempFile.toPath());
 
         // digest url of image: more precise than tags
@@ -72,21 +79,21 @@ public class Public {
 
         tempFile.delete();
 
-        log.info("Cosigning image {} for build: {}", imageTag, buildId);
+        log.info("Cosigning image {} for build: {}", imageTag, sanitizedBuildId);
 
-        File tempFileProvenance = File.createTempFile("pnc-provenance-", buildId);
+        File tempFileProvenance = File.createTempFile("pnc-provenance-", sanitizedBuildId);
         objectMapper.writeValue(tempFileProvenance, predicate);
         cosignWrapper.attestPredicate(tempFileProvenance.toPath(), imageTag);
 
-        log.info("Creating provenance-attestation attachment to PNC-Orch for build: {}", buildId);
-        orchClient.createAttachmentProvenance(buildId, imageTag, sha256);
+        log.info("Creating provenance-attestation attachment to PNC-Orch for build: {}", sanitizedBuildId);
+        orchClient.createAttachmentProvenance(sanitizedBuildId, imageTag, sha256);
 
         if (config.isAddBuildAttribute()) {
-            log.info("Creating build attribute for provenance-attestation for build: {}", buildId);
-            orchClient.addProvenanceAttestationToBuildAttribute(buildId, imageSha);
+            log.info("Creating build attribute for provenance-attestation for build: {}", sanitizedBuildId);
+            orchClient.addProvenanceAttestationToBuildAttribute(sanitizedBuildId, imageSha);
         }
 
-        log.info("Done for build: {}", buildId);
+        log.info("Done for build: {}", sanitizedBuildId);
 
         return predicate;
     }

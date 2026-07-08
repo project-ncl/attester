@@ -147,10 +147,23 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-common</artifactId>
-      <version>3.5.1</version>
+      <version>3.5.2-SNAPSHOT</version>
       <classifier>jakarta</classifier>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central-publisher-snapshots</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
