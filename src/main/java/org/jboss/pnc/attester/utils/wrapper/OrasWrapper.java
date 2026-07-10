@@ -1,9 +1,12 @@
 package org.jboss.pnc.attester.utils.wrapper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,60 +16,86 @@ import org.jboss.pnc.attester.utils.configuration.AttesterConfig;
 @ApplicationScoped
 public class OrasWrapper {
 
+    public static final String SIGSTORE_BUNDLE_MEDIA_TYPE = "application/vnd.dev.sigstore.bundle.v0.3+json";
+    public static final String IN_TOTO_STATEMENT_MEDIA_TYPE = "application/vnd.in-toto+json";
+
+    private static final Pattern DIGEST_PATTERN = Pattern.compile("(?m)^Digest:\\s+sha256:([0-9a-fA-F]{64})\\s*$");
+
     @Inject
     AttesterConfig config;
 
     /**
-     * Create a container image tag
+     * Publishes the complete provenance statement together with its Sigstore bundle.
+     * The bundle itself also embeds the signed statement in its DSSE payload, while
+     * the separate statement layer makes direct inspection and comparison simpler.
      *
-     * @return the SHA256 digest hash (without the "sha256:" prefix)
+     * @return the OCI manifest SHA-256 without the {@code sha256:} prefix
      */
-    public String createContainerImage(String imageNameTag, Path path) throws IOException, InterruptedException {
+    public String pushBuildAttestation(
+            String imageNameTag,
+            Path statement,
+            Path bundle) throws IOException, InterruptedException {
+
+        Path parent = requireSameParent(statement, bundle);
+        String statementLayer = statement.getFileName() + ":" + IN_TOTO_STATEMENT_MEDIA_TYPE;
+        String bundleLayer = bundle.getFileName() + ":" + SIGSTORE_BUNDLE_MEDIA_TYPE;
 
         List<String> commands = List.of(
                 "oras",
                 "push",
-                imageNameTag,
-                path.toString(),
-                "--disable-path-validation",
                 "--username",
                 config.getContainerRegistryUsername(),
-                "--password",
-                config.getContainerRegistryPassword());
+                "--password-stdin",
+                "--artifact-type",
+                SIGSTORE_BUNDLE_MEDIA_TYPE,
+                imageNameTag,
+                statementLayer,
+                bundleLayer);
 
-        ProcessBuilder pb = new ProcessBuilder(commands);
+        ProcessBuilder processBuilder = new ProcessBuilder(commands);
+        processBuilder.directory(parent.toFile());
+        Process process = processBuilder.start();
 
-        Process p = pb.start();
+        try (var stdin = process.getOutputStream()) {
+            stdin.write(config.getContainerRegistryPassword().getBytes(StandardCharsets.UTF_8));
+            stdin.write('\n');
+        }
 
-        // Drain stdout/stderr in separate threads to avoid blocking
-        StreamGobbler outGobbler = new StreamGobbler(p.getInputStream(), "oras-out");
-        StreamGobbler errGobbler = new StreamGobbler(p.getErrorStream(), "oras-err");
-        outGobbler.start();
-        errGobbler.start();
+        StreamGobbler stdout = new StreamGobbler(process.getInputStream(), "oras-out");
+        StreamGobbler stderr = new StreamGobbler(process.getErrorStream(), "oras-err");
+        stdout.start();
+        stderr.start();
 
-        // 1. Wait for process to finish
-        int exitCode = p.waitFor();
+        int exitCode = process.waitFor();
+        stdout.join();
+        stderr.join();
 
+        String output = Files.readString(stdout.capturedFile) + System.lineSeparator()
+                + Files.readString(stderr.capturedFile);
         if (exitCode != 0) {
-            String err = Files.readString(errGobbler.capturedFile);
-            throw new RuntimeException("oras failed: " + err);
+            throw new RuntimeException("oras failed: " + output);
         }
 
-        String output = Files.readString(outGobbler.capturedFile);
+        Matcher matcher = DIGEST_PATTERN.matcher(output);
+        if (!matcher.find()) {
+            throw new RuntimeException("Failed to extract manifest digest from oras output: " + output);
+        }
+        return matcher.group(1).toLowerCase();
+    }
 
-        // Extract SHA256 digest from output
-        String digest = null;
-        for (String line : output.split("\n")) {
-            if (line.startsWith("Digest: sha256:")) {
-                digest = line.substring("Digest: sha256:".length()).trim();
-                break;
-            }
+    private static Path requireSameParent(Path first, Path second) {
+        if (!Files.isRegularFile(first)) {
+            throw new IllegalStateException("Provenance statement does not exist: " + first);
+        }
+        if (!Files.isRegularFile(second)) {
+            throw new IllegalStateException("Sigstore bundle does not exist: " + second);
         }
 
-        if (digest == null) {
-            throw new RuntimeException("Failed to extract digest from oras output");
+        Path firstParent = first.toAbsolutePath().getParent();
+        Path secondParent = second.toAbsolutePath().getParent();
+        if (!firstParent.equals(secondParent)) {
+            throw new IllegalArgumentException("Provenance statement and bundle must be in the same directory");
         }
-
-        return digest;
+        return firstParent;
     }
 }

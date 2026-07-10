@@ -34,6 +34,6 @@ attester:
   addBuildAttribute: true
 
 pnc_client_auth:
-    type: OIDC # or LDAP
-    ldap_credentials:
-        path: /mnt/secrets/ldap_credentials # file must be in format: <username>:<password>
+  type: OIDC # or LDAP
+  ldap_credentials:
+    path: /mnt/secrets/ldap_credentials # file must be in format: <username>:<password>
