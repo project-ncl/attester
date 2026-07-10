@@ -1,6 +1,7 @@
 package org.jboss.pnc.attester.utils.configuration;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -32,6 +33,9 @@ public class AttesterConfig {
 
     @ConfigProperty(name = "attester.cosign.publicKeyPath")
     Path cosignPublicKeyPath;
+
+    @ConfigProperty(name = "attester.cosign.signingConfigPath")
+    Optional<Path> cosignSigningConfigPath;
 
     @ConfigProperty(name = "attester.addBuildAttribute", defaultValue = "true")
     boolean addBuildAttribute;

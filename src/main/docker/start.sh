@@ -8,4 +8,9 @@ export ATTESTER_CONTAINER_REGISTRY_PASSWORD=$(cat /mnt/secrets/attester-${APP_EN
 export ATTESTER_CONTAINER_REGISTRY_IMAGE=$(cat /mnt/secrets/attester-${APP_ENV}/container-image)
 export ATTESTER_COSIGN_PRIVATEKEYPASSWORD=$(cat /mnt/secrets/attester-${APP_ENV}/cosign.password)
 
+# Reuse the same optional no-network signing configuration as the pipeline when mounted.
+if [[ -z "${ATTESTER_COSIGN_SIGNINGCONFIGPATH:-}" && -f "/mnt/secrets/attester-${APP_ENV}/signing_config.v0.2.no-network.json" ]]; then
+  export ATTESTER_COSIGN_SIGNINGCONFIGPATH="/mnt/secrets/attester-${APP_ENV}/signing_config.v0.2.no-network.json"
+fi
+
 /opt/jboss/container/java/run/run-java.sh
