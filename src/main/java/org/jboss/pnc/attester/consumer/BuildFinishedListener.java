@@ -28,7 +28,6 @@ public class BuildFinishedListener {
     @Blocking
     @Incoming("logs")
     public void consume(@SpanAttribute(value = "json") List<String> batchJsonLines) {
-        log.info("Received {} messages per batch", batchJsonLines.size());
 
         for (String json : batchJsonLines) {
             consumeSingleMessage(json);
@@ -49,7 +48,7 @@ public class BuildFinishedListener {
             }
 
             String buildIdSucceeded = logLine.getLogEntry().getBuildId();
-            log.info("Build {} succeeded!");
+            log.info("Build {} succeeded!", buildIdSucceeded);
 
         } catch (Exception e) {
             log.error("Error while reading and saving the data", e);
