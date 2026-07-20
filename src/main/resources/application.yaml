@@ -21,6 +21,16 @@ quarkus:
     additional-tags:
     - latest
 
+mp:
+  messaging:
+    incoming:
+      logs:
+        connector: smallrye-kafka
+        topic: logs
+        auto:
+          offset:
+            reset: earliest
+
 attester:
   cosign:
     privateKeyPath: /home/dcheung/slsa/cosign.key
