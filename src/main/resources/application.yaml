@@ -42,6 +42,8 @@ attester:
     password: password
     image: quay.io/dcheung/pnc-test
   addBuildAttribute: true
+  # whether to attest from messages received in Kafka of successful builds
+  kafkaListenerAttest: false
 
 pnc_client_auth:
   type: OIDC # or LDAP

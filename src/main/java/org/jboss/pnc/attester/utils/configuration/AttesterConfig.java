@@ -39,4 +39,7 @@ public class AttesterConfig {
 
     @ConfigProperty(name = "attester.addBuildAttribute", defaultValue = "true")
     boolean addBuildAttribute;
+
+    @ConfigProperty(name = "attester.kafkaListenerAttest", defaultValue = "false")
+    boolean kafkaListenerAttest;
 }

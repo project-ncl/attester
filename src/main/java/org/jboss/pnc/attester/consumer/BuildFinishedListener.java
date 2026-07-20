@@ -6,6 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.jboss.pnc.attester.Attester;
+import org.jboss.pnc.attester.utils.configuration.AttesterConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,6 +25,12 @@ public class BuildFinishedListener {
 
     @Inject
     ObjectMapper mapper;
+
+    @Inject
+    Attester attester;
+
+    @Inject
+    AttesterConfig attesterConfig;
 
     @Timed
     @Blocking
@@ -48,7 +56,16 @@ public class BuildFinishedListener {
             }
 
             String buildIdSucceeded = logLine.getLogEntry().getBuildId();
-            log.info("Build {} succeeded!", buildIdSucceeded);
+            boolean temporaryBuild = logLine.getLogEntry().isTemporaryBuild();
+
+            if (buildIdSucceeded != null && !temporaryBuild) {
+                // it can be null for no-rebuild-required type builds
+                log.info("Permanent Build {} succeeded!", buildIdSucceeded);
+
+                if (attesterConfig.isKafkaListenerAttest()) {
+                    attester.attest(buildIdSucceeded);
+                }
+            }
 
         } catch (Exception e) {
             log.error("Error while reading and saving the data", e);
