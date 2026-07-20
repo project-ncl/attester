@@ -12,5 +12,6 @@ export ATTESTER_COSIGN_PRIVATEKEYPASSWORD=$(cat /mnt/secrets/attester-${APP_ENV}
 if [[ -z "${ATTESTER_COSIGN_SIGNINGCONFIGPATH:-}" && -f "/mnt/secrets/attester-${APP_ENV}/signing_config.v0.2.no-network.json" ]]; then
   export ATTESTER_COSIGN_SIGNINGCONFIGPATH="/mnt/secrets/attester-${APP_ENV}/signing_config.v0.2.no-network.json"
 fi
+  export CLIENT_JAAS_CONF="/mnt/secrets/attester-${APP_ENV}/kafka_jaas_conf"
 
 /opt/jboss/container/java/run/run-java.sh
