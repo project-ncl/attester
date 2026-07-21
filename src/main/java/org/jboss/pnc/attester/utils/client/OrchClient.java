@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OrchClient {
 
-    private static final String FULL_ATTESTATION_ATTRIBUTE = "PROVENANCE_ATTESTATION";
-    private static final String REDACTED_ATTESTATION_ATTRIBUTE = "PROVENANCE_REDACTED_ATTESTATION";
+    private static final String FULL_ATTESTATION_ATTRIBUTE = "SLSA_FULL_PROVENANCE_ATTESTATION";
+    private static final String REDACTED_ATTESTATION_ATTRIBUTE = "SLSA_PROVENANCE_ATTESTATION";
 
     @Inject
     PNCClientAuth pncClientAuth;
@@ -95,7 +95,7 @@ public class OrchClient {
         Build build = buildClient.getSpecific(buildId);
 
         Attachment fullAttachment = Attachment.builder()
-                .name("provenance.sigstore.json")
+                .name("full-provenance.sigstore.json")
                 .description("Signed complete SLSA provenance statement for build " + buildId)
                 .url(fullReference)
                 .sha256(fullManifestSha256)
@@ -104,7 +104,7 @@ public class OrchClient {
                 .build();
 
         Attachment redactedAttachment = Attachment.builder()
-                .name("provenance.redacted.sigstore.json")
+                .name("provenance.sigstore.json")
                 .description("Signed complete redacted SLSA provenance statement for build " + buildId)
                 .url(redactedReference)
                 .sha256(redactedManifestSha256)

@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Attester {
 
-    private static final String FULL_STATEMENT_FILENAME = "provenance.json";
-    private static final String REDACTED_STATEMENT_FILENAME = "provenance.redacted.json";
-    private static final String FULL_BUNDLE_FILENAME = "provenance.sigstore.json";
-    private static final String REDACTED_BUNDLE_FILENAME = "provenance.redacted.sigstore.json";
+    private static final String FULL_STATEMENT_FILENAME = "full-provenance.json";
+    private static final String REDACTED_STATEMENT_FILENAME = "provenance.json";
+    private static final String FULL_BUNDLE_FILENAME = "full-provenance.sigstore.json";
+    private static final String REDACTED_BUNDLE_FILENAME = "provenance.sigstore.json";
 
     @Inject
     OrchClient orchClient;
@@ -72,8 +72,8 @@ public class Attester {
             cosignWrapper.attestStatement(redactedStatement, redactedBundle);
 
             String image = config.getContainerImage();
-            String fullTag = image + ":build-" + tagSafeBuildId + "-provenance";
-            String redactedTag = image + ":build-" + tagSafeBuildId + "-provenance-redacted";
+            String fullTag = image + ":build-" + tagSafeBuildId + "-full-provenance";
+            String redactedTag = image + ":build-" + tagSafeBuildId + "-provenance";
 
             log.info("Publishing full provenance statement and signed bundle to {}", fullTag);
             String fullManifestSha256 = orasWrapper.pushBuildAttestation(fullTag, fullStatement, fullBundle);
