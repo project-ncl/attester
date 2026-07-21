@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,17 +13,25 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.jboss.pnc.attester.utils.configuration.AttesterConfig;
+import org.jboss.pnc.attester.utils.hash.DigestGenerator;
+
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
+@Slf4j
 public class OrasWrapper {
 
     public static final String SIGSTORE_BUNDLE_MEDIA_TYPE = "application/vnd.dev.sigstore.bundle.v0.3+json";
     public static final String IN_TOTO_STATEMENT_MEDIA_TYPE = "application/vnd.in-toto+json";
+    public static final String HASH_MEDIA_TYPE = "text/plain";
 
     private static final Pattern DIGEST_PATTERN = Pattern.compile("(?m)^Digest:\\s+sha256:([0-9a-fA-F]{64})\\s*$");
 
     @Inject
     AttesterConfig config;
+
+    @Inject
+    DigestGenerator digestGenerator;
 
     /**
      * Publishes the complete provenance statement together with its Sigstore bundle.
@@ -37,21 +46,32 @@ public class OrasWrapper {
             Path bundle) throws IOException, InterruptedException {
 
         Path parent = requireSameParent(statement, bundle);
+
+        // NCL-9852: generate shas for the statement and bundle
+        List<Path> shaPaths = digestGenerator.generateDigests(statement);
+        shaPaths.addAll(digestGenerator.generateDigests(bundle));
+
         String statementLayer = statement.getFileName() + ":" + IN_TOTO_STATEMENT_MEDIA_TYPE;
         String bundleLayer = bundle.getFileName() + ":" + SIGSTORE_BUNDLE_MEDIA_TYPE;
 
-        List<String> commands = List.of(
-                "oras",
-                "push",
-                "--username",
-                config.getContainerRegistryUsername(),
-                "--password-stdin",
-                "--artifact-type",
-                SIGSTORE_BUNDLE_MEDIA_TYPE,
-                imageNameTag,
-                statementLayer,
-                bundleLayer);
+        List<String> commands = new ArrayList<>(
+                List.of(
+                        "oras",
+                        "push",
+                        "--username",
+                        config.getContainerRegistryUsername(),
+                        "--password-stdin",
+                        "--artifact-type",
+                        SIGSTORE_BUNDLE_MEDIA_TYPE,
+                        imageNameTag,
+                        statementLayer,
+                        bundleLayer));
 
+        for (Path path : shaPaths) {
+            commands.add(path.getFileName().toString() + ":" + HASH_MEDIA_TYPE);
+        }
+
+        log.info("Running oras command: {} for image tag: {}", commands, imageNameTag);
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.directory(parent.toFile());
         Process process = processBuilder.start();
