@@ -27,6 +27,7 @@ public class OrchClient {
 
     private static final String FULL_ATTESTATION_ATTRIBUTE = "SLSA_FULL_PROVENANCE_ATTESTATION";
     private static final String REDACTED_ATTESTATION_ATTRIBUTE = "SLSA_PROVENANCE_ATTESTATION";
+    private static final String PUBLIC_KEY_OCI_REF_ATTRIBUTE = "SLSA_ATTESTATION_PUBLIC_KEY";
 
     @Inject
     PNCClientAuth pncClientAuth;
@@ -96,7 +97,7 @@ public class OrchClient {
 
         Attachment fullAttachment = Attachment.builder()
                 .name("full-provenance.sigstore.json")
-                .description("Signed complete SLSA provenance statement for build " + buildId)
+                .description("Sigstore bundle containing the signed full SLSA provenance for build " + buildId)
                 .url(fullReference)
                 .sha256(fullManifestSha256)
                 .type(AttachmentType.PROVENANCE)
@@ -105,7 +106,7 @@ public class OrchClient {
 
         Attachment redactedAttachment = Attachment.builder()
                 .name("provenance.sigstore.json")
-                .description("Signed complete redacted SLSA provenance statement for build " + buildId)
+                .description("Sigstore bundle containing the signed redacted SLSA provenance for build " + buildId)
                 .url(redactedReference)
                 .sha256(redactedManifestSha256)
                 .type(AttachmentType.PROVENANCE)
@@ -114,6 +115,18 @@ public class OrchClient {
 
         attachmentClient.create(fullAttachment);
         attachmentClient.create(redactedAttachment);
+
+        if (attesterConfig.isPublicKeyOciRefSpecified()) {
+            Attachment publicKeyAttachment = Attachment.builder()
+                    .name("slsa-attestation-public-key")
+                    .description("SLSA Attestation Public Key OCI Ref for " + buildId)
+                    .url(attesterConfig.getPublicKeyOciRef())
+                    .sha256(attesterConfig.getPublicKeyOciSha256())
+                    .type(AttachmentType.PROVENANCE)
+                    .build(build)
+                    .build();
+            attachmentClient.create(publicKeyAttachment);
+        }
     }
 
     public void addProvenanceAttestationBuildAttributes(
@@ -123,6 +136,11 @@ public class OrchClient {
 
         buildClient.addAttribute(buildId, FULL_ATTESTATION_ATTRIBUTE, fullReference);
         buildClient.addAttribute(buildId, REDACTED_ATTESTATION_ATTRIBUTE, redactedReference);
+
+        if (attesterConfig.isPublicKeyOciRefSpecified()) {
+            // NCL-9852: add to build attributes the public key oci ref
+            buildClient.addAttribute(buildId, PUBLIC_KEY_OCI_REF_ATTRIBUTE, attesterConfig.getPublicKeyOciRef());
+        }
     }
 
     private static Provenance requireProvenance(Provenance provenance, String buildId, boolean redacted) {
