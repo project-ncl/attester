@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -48,8 +49,8 @@ public class OrasWrapper {
         Path parent = requireSameParent(statement, bundle);
 
         // NCL-9852: generate shas for the statement and bundle
-        List<Path> shaPaths = digestGenerator.generateDigests(statement);
-        shaPaths.addAll(digestGenerator.generateDigests(bundle));
+        List<Path> hashPaths = digestGenerator.generateDigests(statement);
+        List<Path> hashBundlePaths = digestGenerator.generateDigests(bundle);
 
         String statementLayer = statement.getFileName() + ":" + IN_TOTO_STATEMENT_MEDIA_TYPE;
         String bundleLayer = bundle.getFileName() + ":" + SIGSTORE_BUNDLE_MEDIA_TYPE;
@@ -67,7 +68,8 @@ public class OrasWrapper {
                         statementLayer,
                         bundleLayer));
 
-        for (Path path : shaPaths) {
+        List<Path> combinedHashs = Stream.concat(hashPaths.stream(), hashBundlePaths.stream()).toList();
+        for (Path path : combinedHashs) {
             commands.add(path.getFileName().toString() + ":" + HASH_MEDIA_TYPE);
         }
 
