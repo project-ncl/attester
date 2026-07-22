@@ -45,8 +45,8 @@ attester:
   # whether to attest from messages received in Kafka of successful builds
   kafkaListenerAttest: false
   publicKey:
-    ociImageRegistry: quay.io/dcheung/public-key
-    ociSha256: 1234
+    ociImageRegistry: " "
+    ociSha256: " "
 
 pnc_client_auth:
   type: OIDC # or LDAP
