@@ -61,8 +61,14 @@ public class BuildFinishedListener {
             if (buildIdSucceeded != null && !temporaryBuild) {
                 // it can be null for no-rebuild-required type builds
                 log.info("Permanent Build {} succeeded!", buildIdSucceeded);
+                log.debug("JSON: {}", json);
 
                 if (attesterConfig.isKafkaListenerAttest()) {
+                    // temporarily until orch fixes where the log line is sent after everything is stored
+                    try {
+                        Thread.sleep(2000L);
+                    } catch (InterruptedException e) {
+                    }
                     attester.attest(buildIdSucceeded);
                 }
             }
