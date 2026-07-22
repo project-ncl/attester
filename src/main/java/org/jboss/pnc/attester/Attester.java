@@ -110,6 +110,9 @@ public class Attester {
             // Preserve the useful endpoint response by returning the complete,
             // non-redacted provenance statement.
             return fullProvenance;
+        } catch (Exception e) {
+            log.error("Error while attesting build: {}", buildId, e);
+            throw e;
         } finally {
             deleteRecursively(workDirectory);
         }
