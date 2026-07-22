@@ -42,4 +42,20 @@ public class AttesterConfig {
 
     @ConfigProperty(name = "attester.kafkaListenerAttest", defaultValue = "false")
     boolean kafkaListenerAttest;
+
+    // Used to push to build-attributes where to find the public key oci ref to verify the bundle
+    @ConfigProperty(name = "attester.publicKey.ociImageRegistry", defaultValue = "")
+    String publicKeyOciImageRegistry;
+
+    @ConfigProperty(name = "attester.publicKey.ociSha256", defaultValue = "")
+    String publicKeyOciSha256;
+
+    public boolean isPublicKeyOciRefSpecified() {
+        return publicKeyOciImageRegistry != null && !publicKeyOciImageRegistry.isBlank() && publicKeyOciSha256 != null
+                && !publicKeyOciSha256.isBlank();
+    }
+
+    public String getPublicKeyOciRef() {
+        return publicKeyOciImageRegistry + "@sha256:" + publicKeyOciSha256;
+    }
 }
