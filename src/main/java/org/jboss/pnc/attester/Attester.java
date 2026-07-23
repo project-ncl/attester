@@ -46,6 +46,23 @@ public class Attester {
         String sanitizedBuildId = LogSanitizer.clean(buildId);
         String tagSafeBuildId = toTagPart(sanitizedBuildId);
 
+        boolean buildIdAvailable = orchClient.isBuildIdAvailable(sanitizedBuildId);
+        int countRetries = 0;
+        while (!buildIdAvailable && countRetries < 10) {
+
+            try {
+                Thread.sleep(2000L);
+            } catch (InterruptedException e) {
+            }
+            log.info("Build id: {} not available yet. Retrying", sanitizedBuildId);
+            buildIdAvailable = orchClient.isBuildIdAvailable(sanitizedBuildId);
+            countRetries++;
+        }
+
+        if (!buildIdAvailable) {
+            throw new RuntimeException("BuildId " + sanitizedBuildId + " is not yet available! Aborting");
+        }
+
         log.info("Fetching full provenance statement for build: {}", sanitizedBuildId);
         Provenance fullProvenance = orchClient.getProvenance(sanitizedBuildId);
 

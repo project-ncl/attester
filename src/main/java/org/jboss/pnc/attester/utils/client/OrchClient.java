@@ -143,6 +143,19 @@ public class OrchClient {
         }
     }
 
+    /**
+     * Check if buildId is present on PNC DB. It might not be present yet since it's still being stored in the DB
+     * transaction.
+     */
+    public boolean isBuildIdAvailable(String buildId) {
+        try {
+            buildClient.getSpecific(buildId);
+            return true;
+        } catch (RemoteResourceException e) {
+            return false;
+        }
+    }
+
     private static Provenance requireProvenance(Provenance provenance, String buildId, boolean redacted) {
         if (provenance == null) {
             String variant = redacted ? "redacted" : "full";
