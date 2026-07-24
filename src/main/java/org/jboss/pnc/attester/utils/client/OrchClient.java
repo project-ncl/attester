@@ -68,7 +68,7 @@ public class OrchClient {
      * Returns the complete non-redacted in-toto provenance statement from the
      * build-level endpoint. The caller must sign this entire object.
      */
-    @Retry(maxRetries = 3, delay = 1000, jitter = 500)
+    @Retry(maxRetries = 3, delay = 5000, jitter = 500)
     public Provenance getProvenance(String buildId) throws RemoteResourceException {
         return requireProvenance(slsaClient.getFromBuildId(buildId), buildId, false);
     }
@@ -77,7 +77,7 @@ public class OrchClient {
      * Returns the complete redacted in-toto provenance statement from the
      * build-level redacted endpoint. The caller must sign this entire object.
      */
-    @Retry(maxRetries = 3, delay = 1000, jitter = 500)
+    @Retry(maxRetries = 3, delay = 5000, jitter = 500)
     public Provenance getRedactedProvenance(String buildId) throws RemoteResourceException {
         return requireProvenance(slsaClient.getFromBuildIdRedacted(buildId), buildId, true);
     }
