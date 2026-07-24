@@ -67,11 +67,13 @@ public class BuildFinishedListener {
                 log.info("Permanent Build {} succeeded!", buildIdSucceeded);
 
                 if (attesterConfig.isKafkaListenerAttest()) {
-                    try {
-                        executorService.submit(() -> attester.attest(buildIdSucceeded));
-                    } catch (Exception e) {
-                        log.error("Error happened in kafka listener attestation", e);
-                    }
+                    executorService.submit(() -> {
+                        try {
+                            attester.attest(buildIdSucceeded);
+                        } catch (Exception e) {
+                            log.error("Error happened in kafka listener attestation", e);
+                        }
+                    });
                 }
             }
 

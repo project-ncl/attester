@@ -63,7 +63,7 @@ public class Attester {
             throw new RuntimeException("BuildId " + sanitizedBuildId + " is not yet available! Aborting");
         }
 
-        if (orchClient.isBuildIdSuccessful(sanitizedBuildId)) {
+        if (!orchClient.isBuildIdSuccessful(sanitizedBuildId)) {
             throw new RuntimeException("BuildId " + sanitizedBuildId + " actually failed. Skipping");
         }
 
