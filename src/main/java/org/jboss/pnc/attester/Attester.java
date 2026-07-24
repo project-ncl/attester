@@ -63,6 +63,10 @@ public class Attester {
             throw new RuntimeException("BuildId " + sanitizedBuildId + " is not yet available! Aborting");
         }
 
+        if (orchClient.isBuildIdSuccessful(sanitizedBuildId)) {
+            throw new RuntimeException("BuildId " + sanitizedBuildId + " actually failed. Skipping");
+        }
+
         log.info("Fetching full provenance statement for build: {}", sanitizedBuildId);
         Provenance fullProvenance = orchClient.getProvenance(sanitizedBuildId);
 

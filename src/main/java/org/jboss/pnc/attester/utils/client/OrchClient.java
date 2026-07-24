@@ -156,6 +156,15 @@ public class OrchClient {
         }
     }
 
+    public boolean isBuildIdSuccessful(String buildId) {
+        try {
+            Build build = buildClient.getSpecific(buildId);
+            return build.getStatus().completedSuccessfully();
+        } catch (RemoteResourceException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static Provenance requireProvenance(Provenance provenance, String buildId, boolean redacted) {
         if (provenance == null) {
             String variant = redacted ? "redacted" : "full";

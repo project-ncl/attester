@@ -1,6 +1,7 @@
 package org.jboss.pnc.attester.consumer;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,6 +32,9 @@ public class BuildFinishedListener {
 
     @Inject
     AttesterConfig attesterConfig;
+
+    @Inject
+    ExecutorService executorService;
 
     @Timed
     @Blocking
@@ -64,7 +68,7 @@ public class BuildFinishedListener {
 
                 if (attesterConfig.isKafkaListenerAttest()) {
                     try {
-                        attester.attest(buildIdSucceeded);
+                        executorService.submit(() -> attester.attest(buildIdSucceeded));
                     } catch (Exception e) {
                         log.error("Error happened in kafka listener attestation", e);
                     }
