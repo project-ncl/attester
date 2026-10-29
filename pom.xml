@@ -11,7 +11,7 @@
 
   <groupId>org.jboss.pnc.attester</groupId>
   <artifactId>attester</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>4.0.0-SNAPSHOT</version>
   <packaging>quarkus</packaging>
 
   <name>attester</name>
