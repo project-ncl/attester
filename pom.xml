@@ -11,7 +11,7 @@
 
   <groupId>org.jboss.pnc.attester</groupId>
   <artifactId>attester</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1-SNAPSHOT</version>
   <packaging>quarkus</packaging>
 
   <name>attester</name>
@@ -42,7 +42,7 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/attester.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/attester.git</developerConnection>
-    <tag>4.0.0${tagSuffix}</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/project-ncl/attester/</url>
   </scm>
 
